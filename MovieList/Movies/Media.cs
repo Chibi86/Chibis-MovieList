@@ -10,6 +10,7 @@ namespace MovieList.Movies
     public enum Media
     {
         Bluray,
+        UHD_Bluray,
         DVD,
         Digital_copy
     }
