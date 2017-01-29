@@ -26,13 +26,11 @@ History
 
 ###History for Chibi's MovieList
 
-v1.1.1 (2017-01-29)
-
-* New: Added 'UHD Bluray' to media format
-
 v1.1.0 (2017-01-27)
 
 * First release on Github.
+
+
 
 ```
 Copyright (c) 2017 Rasmus Berg, rasmus.berg@chibidesign.se
