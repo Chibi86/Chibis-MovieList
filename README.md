@@ -29,12 +29,12 @@ History
 
 ## History for Chibi's MovieList
 
-# v1.2 (2017-09-08)
+v1.2 (2017-09-08)
 
 * Bugfix: Add support for OMDb api key
 * Added: Bluray 3D and UHD Bluray as media types
 
-# v1.1.0 (2017-01-27)
+v1.1.0 (2017-01-27)
 
 * First release on Github.
 
