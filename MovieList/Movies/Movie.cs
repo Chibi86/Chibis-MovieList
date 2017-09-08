@@ -3,13 +3,16 @@
 // Made by: Rasmus Berg
 // Purpose: This program is organize movies and help user keep record how has lend movies
 using System;
+using System.Configuration;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.XPath;
+using System.Net;
 using MovieList.Movies;
 
 namespace MovieList.Movies
@@ -21,7 +24,9 @@ namespace MovieList.Movies
     /// </summary>
     public class Movie
     {
-        private const string m_omdbUrl = "http://www.omdbapi.com/?r=xml&type=movie&v=1"; // r = response (xml), type = movie/serier/episoder (movie), v = api version (1)
+        private NameValueCollection m_appSettings;
+        private string m_omdbUrl;
+
         private string m_title;
         private Media m_media;
         private int m_year;
@@ -43,7 +48,10 @@ namespace MovieList.Movies
             m_runtime = string.Empty;
             m_lending = new Lending();
             m_genres = new Genres();
-        }
+
+            m_appSettings = ConfigurationManager.AppSettings;
+            m_omdbUrl = m_appSettings["apiUrl"].Replace("&amp;", "&").Replace("&#61;", "=") + m_appSettings["apiKey"];
+    }
 
         /// <summary>
         /// Constractor with old Movie object
@@ -206,7 +214,8 @@ namespace MovieList.Movies
         /// </summary>
         private bool GetMovieInfoByTitle()
         {
-            Uri omdbUri = new Uri(m_omdbUrl + "&t=" + m_title.Replace(" ", "+")); // To convert m_title to accepted url
+            string url = m_omdbUrl + "&t=" + m_title.Replace(" ", "+");
+            Uri omdbUri = new Uri(url); // To convert m_title to accepted url
 
             return GetMovieInfo(omdbUri);
         }
@@ -284,16 +293,28 @@ namespace MovieList.Movies
                         if (validate)
                             break;
                     }
-                }
 
-                // If none of the movies was validate okey set error message about it
-                if (!validate)
-                    m_strErrMessage =  "Didn't find any released title with that title, imdb url or id!\n";
+                    // If none of the movies was validate okey set error message about it
+                    if (!validate)
+                        m_strErrMessage = "Didn't find any released title with that title, imdb url or id!\n";
+                }
             }
-            catch
+            catch (WebException ex)
             {
-                // If anything fails we expect the connection to OMDb api is down
-                m_strErrMessage = "- Connection to OMDb api fail!\nPlease check your internet connection and try agian!";
+                if(ex.Status == WebExceptionStatus.ProtocolError)
+                {
+                    var response = ex.Response as HttpWebResponse;
+                    if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                        m_strErrMessage = "- You need add api key for Omdb in 'App.Config' or pay for it to use this software!";
+                    else
+                        m_strErrMessage = "- Error to load xml: " + (int)response.StatusCode + " - " + response.StatusDescription;
+                }
+                else
+                {
+                    // If anything fails we expect the connection to OMDb api is down
+                    m_strErrMessage = "- Connection to OMDb api fail!\nPlease check your internet connection and try agian!\n";
+                }
+                
             }
 
             // If everything is validate okey on one movie, save values as movie values

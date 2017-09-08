@@ -11,6 +11,8 @@ namespace MovieList.Movies
     {
         Bluray,
         DVD,
-        Digital_copy
+        Digital_copy,
+        UHD_bluray,
+        Bluray_3D
     }
 }
